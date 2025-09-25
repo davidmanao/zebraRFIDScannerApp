@@ -63,12 +63,12 @@ public class PalletListResponse {
         private String code;
         private String name;
         private String type;
-        private Integer capacity;
-        private Integer tare;
-        private Integer initial;
-        private Integer incoming;
-        private Integer outgoing;
-        private Integer balance;
+        private Double capacity;
+        private Double tare;
+        private Double initial;
+        private Double incoming;
+        private Double outgoing;
+        private Double balance;
         private Boolean isUnique;
         private String dateIn;
         private String dateUp;
@@ -108,51 +108,51 @@ public class PalletListResponse {
             this.type = type;
         }
 
-        public Integer getCapacity() {
+        public Double getCapacity() {
             return capacity;
         }
 
-        public void setCapacity(Integer capacity) {
+        public void setCapacity(Double capacity) {
             this.capacity = capacity;
         }
 
-        public Integer getTare() {
+        public Double getTare() {
             return tare;
         }
 
-        public void setTare(Integer tare) {
+        public void setTare(Double tare) {
             this.tare = tare;
         }
 
-        public Integer getInitial() {
+        public Double getInitial() {
             return initial;
         }
 
-        public void setInitial(Integer initial) {
+        public void setInitial(Double initial) {
             this.initial = initial;
         }
 
-        public Integer getIncoming() {
+        public Double getIncoming() {
             return incoming;
         }
 
-        public void setIncoming(Integer incoming) {
+        public void setIncoming(Double incoming) {
             this.incoming = incoming;
         }
 
-        public Integer getOutgoing() {
+        public Double getOutgoing() {
             return outgoing;
         }
 
-        public void setOutgoing(Integer outgoing) {
+        public void setOutgoing(Double outgoing) {
             this.outgoing = outgoing;
         }
 
-        public Integer getBalance() {
+        public Double getBalance() {
             return balance;
         }
 
-        public void setBalance(Integer balance) {
+        public void setBalance(Double balance) {
             this.balance = balance;
         }
 

@@ -16,7 +16,9 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -240,4 +242,69 @@ public interface RfidApiService {
      */
     @GET("Pallet/code/{code}")
     Call<PalletListResponse.SinglePalletResponse> getPalletByCode(@Path("code") String code);
+    
+    // ========================
+    // PALLET TRANSACTION OPERATIONS
+    // ========================
+    
+    /**
+     * Create pallet transaction with pallet code
+     * POST /PalletTransaction
+     */
+    @POST("PalletTransaction")
+    Call<com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionResponse> createPalletTransactionWithCode(
+        @Body com.mixtra.zebrarfidscannerapp.api.model.PalletCodeRequest request
+    );
+    
+    /**
+     * Create pallet transaction with full details
+     * POST /PalletTransaction
+     */
+    @POST("PalletTransaction")
+    Call<com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionResponse> createPalletTransaction(
+        @Body com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionRequest request
+    );
+    
+    /**
+     * Get pallet transaction by ID
+     * GET /PalletTransaction/{id}
+     */
+    @GET("PalletTransaction/{id}")
+    Call<com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionResponse> getPalletTransaction(
+        @Path("id") int id
+    );
+    
+    /**
+     * Update pallet transaction with details
+     * PUT /PalletTransaction
+     */
+    @PUT("PalletTransaction")
+    Call<com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionResponse> updatePalletTransaction(
+        @Body com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionUpdateRequest request
+    );
+    
+    /**
+     * Get list of pallet transactions with pagination
+     * GET /PalletTransaction?limit={limit}&page={page}
+     */
+    @GET("PalletTransaction")
+    Call<com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionListResponse> getPalletTransactionList(
+        @Query("limit") int limit,
+        @Query("page") int page
+    );
+
+    @GET("PalletTransaction/GetByCode")
+    Call<com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionListByCodeResponse> getPalletTransactionListByCode(
+            @Query("limit") int limit,
+            @Query("page") int page
+    );
+    
+    /**
+     * Delete pallet transaction by ID
+     * DELETE /PalletTransaction/{id}
+     */
+    @DELETE("PalletTransaction/{id}")
+    Call<Void> deletePalletTransaction(
+        @Path("id") int id
+    );
 }

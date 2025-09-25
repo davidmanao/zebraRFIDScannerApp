@@ -9,8 +9,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
+import com.mixtra.zebrarfidscannerapp.R;
 import com.mixtra.zebrarfidscannerapp.databinding.FragmentHomeBinding;
+
+import java.util.Calendar;
 
 public class HomeFragment extends Fragment {
 
@@ -33,8 +37,51 @@ public class HomeFragment extends Fragment {
         // Set username and organization to TextViews
         binding.tvUserName.setText(username);
         binding.tvOrganization.setText(organization);
-
+        binding.greetingText.setText(getGreeting());
+        
+        // Set click listeners for cards
+        binding.cardScanPallet.setOnClickListener(v -> {
+            // Navigate to RFID input form  
+            try {
+                Navigation.findNavController(v).navigate(R.id.action_nav_home_to_nav_rfid_input);
+            } catch (Exception e) {
+                // Fallback - for now just show a toast
+                android.widget.Toast.makeText(getContext(), "Navigation to RFID form", android.widget.Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        binding.cardTransactions.setOnClickListener(v -> {
+            // Navigate to transactions
+            // TODO: Implement navigation
+        });
+        
+        binding.cardIn.setOnClickListener(v -> {
+            // Navigate to IN transactions
+            // TODO: Implement navigation
+        });
+        
+        binding.cardOut.setOnClickListener(v -> {
+            // Navigate to OUT transactions
+            // TODO: Implement navigation
+        });
+        
         return root;
+    }
+
+
+    private String getGreeting() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+        if (hour >= 5 && hour < 12) {
+            return "Good morning";
+        } else if (hour >= 12 && hour < 18) {
+            return "Good afternoon";
+        } else if (hour >= 18 && hour < 22) {
+            return "Good evening";
+        } else {
+            return "Good night";
+        }
     }
 
     @Override

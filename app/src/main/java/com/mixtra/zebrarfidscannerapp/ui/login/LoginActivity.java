@@ -24,6 +24,7 @@ import com.mixtra.zebrarfidscannerapp.api.model.LoginRequest;
 import com.mixtra.zebrarfidscannerapp.api.model.LoginResponse;
 import com.mixtra.zebrarfidscannerapp.databinding.ActivityLoginBinding;
 import com.mixtra.zebrarfidscannerapp.R;
+import com.mixtra.zebrarfidscannerapp.utils.UserManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -192,11 +193,33 @@ public class LoginActivity extends AppCompatActivity {
             authEditor.putString(KEY_USER_NAME, userData.getFullName());
             authEditor.putString(KEY_USER_EMAIL, userData.getEmail());
             authEditor.putBoolean(KEY_IS_ADMIN, userData.isAdmin());
+            
+            // Store user information using UserManager for navigation header
+            UserManager userManager = UserManager.getInstance(this);
+            
+            // Get organization name from first organization member if available
+            String organizationName = "MIXTRA Corporation";
+            if (userData.getOrganizationMembers() != null && !userData.getOrganizationMembers().isEmpty()) {
+                organizationName = userData.getOrganizationMembers().get(0).getName();
+            }
+            
+            // Save complete user info using UserManager
+            userManager.saveUserInfo(
+                userData.getId(),
+                userData.getFullName(),
+                userData.getEmail(),
+                organizationName,
+                userData.isAdmin() ? "Administrator" : "Employee"
+            );
+            
+            Log.d(TAG, "Stored user info - Name: " + userData.getFullName() + 
+                  ", Email: " + userData.getEmail() + 
+                  ", Organization: " + organizationName);
         }
 
         authEditor.apply();
 
-        // Store user info for MainActivity in login_prefs (to match HomeFragment)
+        // Store user info for MainActivity in login_prefs (to match HomeFragment) - for backward compatibility
         SharedPreferences loginPrefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
         SharedPreferences.Editor loginEditor = loginPrefs.edit();
 
@@ -210,8 +233,6 @@ public class LoginActivity extends AppCompatActivity {
                 organizationName = userData.getOrganizationMembers().get(0).getName();
             }
             loginEditor.putString("organization", organizationName);
-
-            Log.d(TAG, "Stored user info - Name: " + userData.getFullName() + ", Organization: " + organizationName);
         }
 
         loginEditor.apply();

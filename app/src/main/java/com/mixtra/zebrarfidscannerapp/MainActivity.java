@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Menu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.mixtra.zebrarfidscannerapp.api.RfidApiManager;
 import com.mixtra.zebrarfidscannerapp.databinding.ActivityMainBinding;
 import com.mixtra.zebrarfidscannerapp.ui.login.LoginActivity;
+import com.mixtra.zebrarfidscannerapp.utils.UserManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +49,41 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+        
+        // Set user information in navigation header
+        setupNavigationHeader(navigationView);
+    }
+    
+    private void setupNavigationHeader(NavigationView navigationView) {
+        // Get the header view
+        View headerView = navigationView.getHeaderView(0);
+        
+        // Find the TextViews
+        TextView tvUserName = headerView.findViewById(R.id.tv_user_name);
+        TextView tvUserEmail = headerView.findViewById(R.id.tv_user_email);
+        TextView tvUserOrganization = headerView.findViewById(R.id.tv_user_organization);
+        
+        // Get user information using UserManager
+        UserManager userManager = UserManager.getInstance(this);
+        String userName = userManager.getUserName();
+        String userEmail = userManager.getUserEmail();
+        String userOrganization = userManager.getUserOrganization();
+        
+        // Set the user information
+        tvUserName.setText(userName);
+        tvUserEmail.setText(userEmail);
+        tvUserOrganization.setText(userOrganization);
+    }
+    
+    // Method to update user information (call this when user data changes)
+    public void updateUserInfo(String name, String email, String organization) {
+        // Save using UserManager
+        UserManager userManager = UserManager.getInstance(this);
+        userManager.saveUserInfo(name, email, organization);
+        
+        // Update the navigation header
+        NavigationView navigationView = binding.navView;
+        setupNavigationHeader(navigationView);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -83,11 +120,16 @@ public class MainActivity extends AppCompatActivity {
         authEditor.clear();
         authEditor.apply();
 
-        // Clear user data
+        // Clear user data using UserManager
+        UserManager userManager = UserManager.getInstance(this);
+        userManager.clearUserData();
+
+        // Clear user data (for backward compatibility)
         SharedPreferences userPrefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         SharedPreferences.Editor userEditor = userPrefs.edit();
         userEditor.clear();
         userEditor.apply();
+        
         // Show logout message
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
 

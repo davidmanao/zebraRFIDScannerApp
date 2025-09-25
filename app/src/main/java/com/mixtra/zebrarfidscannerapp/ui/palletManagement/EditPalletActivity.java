@@ -62,8 +62,8 @@ public class EditPalletActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     public static Intent createIntent(Context context, int palletId, String code, String name, 
-                                    String type, int capacity, int tare, int initial, 
-                                    int incoming, int outgoing, int balance, String rfidTag) {
+                                    String type, double capacity, double tare, double initial,
+                                      double incoming, double outgoing, double balance, String rfidTag) {
         Intent intent = new Intent(context, EditPalletActivity.class);
         intent.putExtra(EXTRA_PALLET_ID, palletId);
         intent.putExtra(EXTRA_PALLET_CODE, code);

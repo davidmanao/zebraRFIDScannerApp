@@ -9,7 +9,40 @@
         android:id="@+id/nav_home"
         android:name="com.mixtra.zebrarfidscannerapp.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        
+        <action
+            android:id="@+id/action_nav_home_to_nav_rfid_input"
+            app:destination="@id/nav_rfid_input" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_rfid_input"
+        android:name="com.mixtra.zebrarfidscannerapp.ui.rfid.RfidInputFragment"
+        android:label="Input RFID"
+        tools:layout="@layout/fragment_rfid_input" >
+        
+        <action
+            android:id="@+id/action_nav_rfid_input_to_nav_transaction_details"
+            app:destination="@id/nav_transaction_details" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_transaction_details"
+        android:name="com.mixtra.zebrarfidscannerapp.ui.transaction.TransactionAddFragment"
+        android:label="Transaction Details"
+        tools:layout="@layout/fragment_transaction_details" >
+        
+        <action
+            android:id="@+id/action_nav_transaction_details_to_nav_transaction_form"
+            app:destination="@id/nav_transaction_form" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_transaction_form"
+        android:name="com.mixtra.zebrarfidscannerapp.ui.transaction.TransactionFormFragment"
+        android:label="Transaction Form"
+        tools:layout="@layout/fragment_transaction_form" />
 
     <fragment
         android:id="@+id/nav_pallet_management"
@@ -19,7 +52,7 @@
 
     <fragment
         android:id="@+id/nav_pallet_activity"
-        android:name="com.mixtra.zebrarfidscannerapp.ui.palletActivity.PalletActivityFragment"
+        android:name="com.mixtra.zebrarfidscannerapp.ui.PalletActivity.PalletActivityFragment"
         android:label="@string/menu_pallet_activity"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_pallet_activity" />
 </navigation>
