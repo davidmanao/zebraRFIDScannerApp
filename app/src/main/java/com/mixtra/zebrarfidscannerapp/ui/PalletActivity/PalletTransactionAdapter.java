@@ -46,29 +46,30 @@ public class PalletTransactionAdapter extends RecyclerView.Adapter<PalletTransac
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         PalletTransactionListByCodeResponse.PalletTransactionItem transaction = transactions.get(position);
         
-        // Format and set date/time (2024-01-15 • 14:30)
-        String formattedDateTime = formatDateTime(transaction.getTransactionDate());
-        holder.tvDateTime.setText(formattedDateTime);
+        // Format and set date/time
+        String[] formattedDateTime = formatDateTimeAsSeparate(transaction.getTransactionDate());
+        holder.tvDate.setText(formattedDateTime[0]);
+        holder.tvTime.setText(formattedDateTime[1]);
         
-        // Set pallet code (from nested pallet object)
+        // Set pallet code
         String palletCode = transaction.getPalletCode();
-        holder.tvPalletCode.setText(palletCode != null ? palletCode : " N/A");
+        holder.tvPalletCode.setText(palletCode != null ? palletCode : "N/A");
         
-        // Set status with appropriate styling
-//        String status = mapTransactionStatus(transaction.getTransactionType());
-//        holder.tvStatus.setText(status);
-//        updateStatusBadge(holder.tvStatus, status);
-
-        String type = transaction.getType();
-        holder.tvItemType.setText(type);
-        updateStatusBadge(holder.tvItemType, type);
+        // Set pallet type (optional secondary text)
+        if (holder.tvPalletType != null) {
+            holder.tvPalletType.setText("Standard Pallet");
+        }
         
-        // Set item count (placeholder - you may need to get this from transaction details)
+        // Set item count with badge styling
         int detailCount = transaction.getDetailCount();
-        holder.tvItemCount.setText(detailCount == 1 ? "1 item" : detailCount + " items");
-//
+        holder.tvItemCount.setText(String.valueOf(detailCount));
+        
+        // Set status with badge styling
+        String type = transaction.getType();
+        holder.tvType.setText(type);
+        updateStatusBadge(holder.tvType, type);
 
-        // Set click listener for the entire item (since we removed edit/delete buttons)
+        // Set click listener for the entire item
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onTransactionClicked(transaction);
@@ -116,84 +117,70 @@ public class PalletTransactionAdapter extends RecyclerView.Adapter<PalletTransac
             return dateString; // Return original string if parsing fails
         }
     }
-    
-    private String mapTransactionStatus(String transactionType) {
-        // Map transaction type to status display
-        if (transactionType == null) return "Menunggu";
-        
-        switch (transactionType.toUpperCase()) {
-            case "COMPLETED":
-            case "SELESAI":
-            case "DONE":
-                return "Selesai";
-            case "PENDING":
-            case "WAITING":
-            case "DRAFT":
-                return "Menunggu";
-            case "IN_PROGRESS":
-            case "PROCESSING":
-                return "Proses";
-            default:
-                return "Menunggu";
+
+    private String[] formatDateTimeAsSeparate(String dateString) {
+        try {
+            // Try parsing with different formats
+            SimpleDateFormat inputFormat1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+            SimpleDateFormat inputFormat2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.ENGLISH);
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            
+            Date date = null;
+            try {
+                date = inputFormat1.parse(dateString);
+            } catch (ParseException e) {
+                date = inputFormat2.parse(dateString);
+            }
+            
+            return new String[]{dateFormat.format(date), timeFormat.format(date)};
+        } catch (ParseException e) {
+            return new String[]{dateString, ""}; // Return original string if parsing fails
         }
     }
+    
+
     
     private void updateStatusBadge(TextView statusView, String status) {
-        // Update badge color based on status
-        int colorRes;
-        switch (status) {
-            case "Selesai":
-                colorRes = R.color.green;
+        // Set appropriate background based on status
+        int backgroundRes;
+        switch (status != null ? status.toUpperCase() : "") {
+            case "IN":
+                backgroundRes = R.drawable.bg_status_in;
                 break;
-            case "Proses":
-                colorRes = R.color.blue;
+            case "OUT":
+                backgroundRes = R.drawable.bg_status_out;
                 break;
-            case "Menunggu":
+            case "GATE OUT":
+                backgroundRes = R.drawable.bg_status_gate_out;
+                break;
             default:
-                colorRes = R.color.yellow;
+                backgroundRes = R.drawable.bg_status_badge;
                 break;
         }
         
-        // Get color from resources and set background
-        int color = statusView.getContext().getResources().getColor(colorRes, null);
-        statusView.setBackgroundColor(color);
+        statusView.setBackgroundResource(backgroundRes);
+        statusView.setTextColor(statusView.getContext().getResources().getColor(android.R.color.white, null));
     }
 
-    private void updateTypeBadge(TextView typeView, String type) {
-        // Update badge color based on status
-        int colorRes;
-        switch (type) {
-            case "IN":
-                colorRes = R.color.green;
-                break;
-            case "OUT":
-                colorRes = R.color.blue;
-                break;
-            case "GATE OUT":
-            default:
-                colorRes = R.color.yellow;
-                break;
-        }
 
-        // Get color from resources and set background
-        int color = typeView.getContext().getResources().getColor(colorRes, null);
-        typeView.setBackgroundColor(color);
-    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDateTime;
-        TextView tvStatus;
+        TextView tvDate;
+        TextView tvTime;
         TextView tvPalletCode;
+        TextView tvPalletType;
         TextView tvItemCount;
-        TextView tvItemType;
+        TextView tvType;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvDateTime = itemView.findViewById(R.id.tvDateTime);
-//            tvStatus = itemView.findViewById(R.id.tvStatus);
+            tvDate = itemView.findViewById(R.id.tvDate);
+            tvTime = itemView.findViewById(R.id.tvTime);
             tvPalletCode = itemView.findViewById(R.id.tvPalletCode);
+            tvPalletType = itemView.findViewById(R.id.tvPalletType);
             tvItemCount = itemView.findViewById(R.id.tvItemCount);
-            tvItemType = itemView.findViewById(R.id.tvType);
+            tvType = itemView.findViewById(R.id.tvType);
         }
     }
 }

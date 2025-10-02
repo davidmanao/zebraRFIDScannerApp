@@ -25,6 +25,18 @@ public class PalletTransactionUpdateRequest {
     @SerializedName("remark")
     private String remark;
     
+    @SerializedName("warehouseCode")
+    private String warehouseCode;
+    
+    @SerializedName("warehouseText")
+    private String warehouseText;
+
+    @SerializedName("locationText")
+    private String locationText;
+    
+    @SerializedName("locationCode")
+    private String locationCode;
+    
     @SerializedName("palletTransactionDetails")
     private List<PalletTransactionDetail> palletTransactionDetails;
 
@@ -34,7 +46,8 @@ public class PalletTransactionUpdateRequest {
 
     public PalletTransactionUpdateRequest(int id, int palletId, String transactionDate, 
                                         String status, String transactionType, String type, 
-                                        String remark, List<PalletTransactionDetail> details) {
+                                        String remark, String warehouseCode, String locationCode, 
+                                        List<PalletTransactionDetail> details) {
         this.id = id;
         this.palletId = palletId;
         this.transactionDate = transactionDate;
@@ -42,6 +55,8 @@ public class PalletTransactionUpdateRequest {
         this.transactionType = transactionType;
         this.type = type;
         this.remark = remark;
+        this.warehouseText = warehouseCode;
+        this.locationText = locationCode;
         this.palletTransactionDetails = details;
     }
 
@@ -100,6 +115,22 @@ public class PalletTransactionUpdateRequest {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getWarehouseCode() {
+        return warehouseCode;
+    }
+
+    public void setWarehouseCode(String warehouseCode) {
+        this.warehouseCode = warehouseCode;
+    }
+
+    public String getLocationCode() {
+        return locationCode;
+    }
+
+    public void setLocationCode(String locationCode) {
+        this.locationCode = locationCode;
     }
 
     public List<PalletTransactionDetail> getPalletTransactionDetails() {

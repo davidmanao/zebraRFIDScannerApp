@@ -41,22 +41,22 @@ public class PalletDetailResponse {
         private String type;
         
         @SerializedName("capacity")
-        private int capacity;
+        private double capacity;
         
         @SerializedName("tare")
-        private int tare;
+        private double tare;
         
         @SerializedName("initial")
-        private int initial;
+        private double initial;
         
         @SerializedName("incoming")
-        private int incoming;
+        private double incoming;
         
         @SerializedName("outgoing")
-        private int outgoing;
+        private double outgoing;
         
         @SerializedName("balance")
-        private int balance;
+        private double balance;
         
         @SerializedName("isUnique")
         private boolean isUnique;
@@ -109,51 +109,51 @@ public class PalletDetailResponse {
             this.type = type;
         }
         
-        public int getCapacity() {
+        public double getCapacity() {
             return capacity;
         }
         
-        public void setCapacity(int capacity) {
+        public void setCapacity(double capacity) {
             this.capacity = capacity;
         }
         
-        public int getTare() {
+        public double getTare() {
             return tare;
         }
         
-        public void setTare(int tare) {
+        public void setTare(double tare) {
             this.tare = tare;
         }
         
-        public int getInitial() {
+        public double getInitial() {
             return initial;
         }
         
-        public void setInitial(int initial) {
+        public void setInitial(double initial) {
             this.initial = initial;
         }
         
-        public int getIncoming() {
+        public double getIncoming() {
             return incoming;
         }
         
-        public void setIncoming(int incoming) {
+        public void setIncoming(double incoming) {
             this.incoming = incoming;
         }
         
-        public int getOutgoing() {
+        public double getOutgoing() {
             return outgoing;
         }
         
-        public void setOutgoing(int outgoing) {
+        public void setOutgoing(double outgoing) {
             this.outgoing = outgoing;
         }
         
-        public int getBalance() {
+        public double getBalance() {
             return balance;
         }
         
-        public void setBalance(int balance) {
+        public void setBalance(double balance) {
             this.balance = balance;
         }
         

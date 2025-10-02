@@ -268,20 +268,11 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="RFID Tag (Editable)"
+                        android:text="RFID Tag "
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
                         android:layout_marginBottom="8dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="This is the only field you can modify"
-                        android:textSize="14sp"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:layout_marginBottom="16dp" />
-
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

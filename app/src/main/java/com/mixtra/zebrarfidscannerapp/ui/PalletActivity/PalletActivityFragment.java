@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,17 @@ import com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionListByCodeRespo
 import com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionListResponse;
 import com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionResponse;
 import com.mixtra.zebrarfidscannerapp.databinding.FragmentPalletActivityBinding;
+import com.zebra.rfid.api3.ENUM_TRANSPORT;
+import com.zebra.rfid.api3.InvalidUsageException;
+import com.zebra.rfid.api3.OperationFailureException;
+import com.zebra.rfid.api3.RFIDReader;
+import com.zebra.rfid.api3.ReaderDevice;
+import com.zebra.rfid.api3.Readers;
+import com.zebra.rfid.api3.RfidEventsListener;
+import com.zebra.rfid.api3.RfidReadEvents;
+import com.zebra.rfid.api3.RfidStatusEvents;
+import com.zebra.rfid.api3.STATUS_EVENT_TYPE;
+import com.zebra.rfid.api3.TagData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,17 +46,27 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PalletActivityFragment extends Fragment implements PalletTransactionAdapter.OnTransactionActionListener {
+public class PalletActivityFragment extends Fragment implements PalletTransactionAdapter.OnTransactionActionListener, RfidEventsListener {
 
+    private static final String TAG = "PalletActivityFragment";
+    
     private FragmentPalletActivityBinding binding;
     private PalletTransactionAdapter adapter;
     private RfidApiService apiService;
     
+    // RFID Components
+    private Readers readers;
+    private RFIDReader reader;
+    private boolean isRfidConnected = false;
+    private boolean isRfidScanning = false;
+    private android.os.Handler rfidTimeoutHandler;
+    
     // Pagination and search
     private int currentPage = 0;
-    private int itemsPerPage = 20; // Use a more reasonable page size
+    private int itemsPerPage = 50; // Increased to show more items for scrollable demonstration
     private int totalItems = 0;
     private String searchQuery = "";
+    private String filterType = ""; // "code" or "rfidtag"
     private Timer searchTimer;
     
     // API Constants
@@ -54,6 +77,9 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
         binding = FragmentPalletActivityBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        // Initialize RFID timeout handler
+        rfidTimeoutHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+        
         initializeViews();
         setupClickListeners();
         loadTransactions();
@@ -77,7 +103,6 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
         
         // Update statistics with initial values
         binding.tvTotalTransactions.setText("Total: " + totalItems);
-        binding.tvCurrentPage.setText("Page: " + (currentPage + 1));
         
         // Log initialization
         android.util.Log.d("PalletActivity", "Views initialized. Pagination buttons should be visible.");
@@ -95,6 +120,21 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
             @Override
             public void afterTextChanged(Editable s) {
                 searchQuery = s.toString().trim();
+                
+                // Determine filter type based on search query
+                if (!searchQuery.isEmpty()) {
+                    // Assume it's a pallet code unless it looks like an RFID tag
+                    // RFID tags are usually longer and contain more hex characters
+                    if (searchQuery.length() > 10 && searchQuery.matches(".*[A-Fa-f0-9].*")) {
+                        filterType = "rfidtag";
+                        Log.d(TAG, "Search detected as RFID tag: " + searchQuery);
+                    } else {
+                        filterType = "code";
+                        Log.d(TAG, "Search detected as pallet code: " + searchQuery);
+                    }
+                } else {
+                    filterType = "";
+                }
                 
                 // Cancel previous timer
                 if (searchTimer != null) {
@@ -139,10 +179,25 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
         // Show loading
         binding.progressBar.setVisibility(View.VISIBLE);
         
-        // Make API call
+        // Prepare filter parameter
+        final String filterParam;
+        if (!searchQuery.isEmpty()) {
+            if (filterType.equals("rfidtag")) {
+                filterParam = "rfidtag:" + searchQuery;
+            } else {
+                filterParam = "code:" + searchQuery;
+            }
+        } else {
+            filterParam = "";
+        }
+        
+        Log.d(TAG, "Loading transactions with filter: " + filterParam);
+        
+        // Make API call with server-side filtering
         Call<PalletTransactionListByCodeResponse> call = apiService.getPalletTransactionListByCode(
             itemsPerPage,
-            currentPage
+            currentPage,
+            filterParam
         );
 
         call.enqueue(new Callback<PalletTransactionListByCodeResponse>() {
@@ -154,17 +209,14 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
                     PalletTransactionListByCodeResponse responseBody = response.body();
                     
                     // Debug logs
-                    android.util.Log.d("PalletActivity", "Total items: " + responseBody.getTotal());
-                    android.util.Log.d("PalletActivity", "Current page: " + currentPage);
-                    android.util.Log.d("PalletActivity", "Items per page: " + itemsPerPage);
-                    android.util.Log.d("PalletActivity", "Data size: " + (responseBody.getData() != null ? responseBody.getData().size() : 0));
+                    Log.d(TAG, "Total items: " + responseBody.getTotal());
+                    Log.d(TAG, "Current page: " + currentPage);
+                    Log.d(TAG, "Items per page: " + itemsPerPage);
+                    Log.d(TAG, "Data size: " + (responseBody.getData() != null ? responseBody.getData().size() : 0));
+                    Log.d(TAG, "Filter applied: " + filterParam);
                     
-                    // Filter data based on search query
-                    List<PalletTransactionListByCodeResponse.PalletTransactionItem> filteredData =
-                        filterTransactions(responseBody.getData(), searchQuery);
-                    
-                    // Update adapter
-                    adapter.updateTransactions(filteredData);
+                    // Update adapter directly with server-filtered data
+                    adapter.updateTransactions(responseBody.getData() != null ? responseBody.getData() : new ArrayList<>());
                     
                     // Update pagination info
                     totalItems = responseBody.getTotal();
@@ -172,10 +224,8 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
                     
                     // Update statistics
                     binding.tvTotalTransactions.setText("Total: " + totalItems);
-                    binding.tvCurrentPage.setText("Page: " + (currentPage + 1));
                     if (binding.tvPageInfo != null) {
-                        binding.tvPageInfo.setText("Page " + (currentPage + 1) + " of " + 
-                            Math.max(1, (int) Math.ceil((double) totalItems / itemsPerPage)));
+                        binding.tvPageInfo.setText(String.valueOf(currentPage + 1));
                     }
                     
                 } else {
@@ -191,26 +241,220 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
         });
     }
 
-    private List<PalletTransactionListByCodeResponse.PalletTransactionItem> filterTransactions(
-            List<PalletTransactionListByCodeResponse.PalletTransactionItem> transactions, String query) {
+    // ===== RFID FUNCTIONALITY =====
+
+    /**
+     * Handle hardware key events for RFID scanning
+     */
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // Check for Zebra RFID trigger keys
+        if (keyCode == 293 || keyCode == 294 || keyCode == 103 || 
+            keyCode == 139 || keyCode == 280 || keyCode == 10036) {
+            Log.d(TAG, "RFID trigger pressed - keyCode: " + keyCode);
+            
+            if (!isRfidScanning) {
+                startRfidScan();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void initializeRfidReader() {
+        Log.d(TAG, "Initializing RFID reader...");
         
-        if (query.isEmpty()) {
-            return transactions;
+        try {
+            // Initialize readers list
+            if (readers == null) {
+                readers = new Readers(requireContext(), ENUM_TRANSPORT.ALL);
+            }
+            
+            // Get available readers
+            if (readers.GetAvailableRFIDReaderList().size() > 0) {
+                // Get first available reader (usually the built-in reader)
+                ReaderDevice readerDevice = readers.GetAvailableRFIDReaderList().get(0);
+                reader = readerDevice.getRFIDReader();
+                
+                Log.d(TAG, "Found RFID reader: " + readerDevice.getName());
+                
+                // Connect to the reader
+                connectToRfidReader();
+                
+            } else {
+                Log.w(TAG, "No RFID readers found");
+                Toast.makeText(getContext(), "No RFID scanner detected", Toast.LENGTH_LONG).show();
+            }
+            
+        } catch (InvalidUsageException e) {
+            Log.e(TAG, "Invalid usage exception during RFID initialization", e);
+            Toast.makeText(getContext(), "RFID initialization failed - retrying...", Toast.LENGTH_LONG).show();
+            
+            // Retry after delay
+            rfidTimeoutHandler.postDelayed(() -> initializeRfidReader(), 3000);
+        } catch (Exception e) {
+            Log.e(TAG, "Unexpected error during RFID initialization", e);
+            Toast.makeText(getContext(), "RFID initialization error", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void connectToRfidReader() {
+        if (reader == null) {
+            Log.w(TAG, "Reader is null, cannot connect");
+            return;
+        }
+
+        try {
+            if (!reader.isConnected()) {
+                Log.d(TAG, "Connecting to RFID reader...");
+                reader.connect();
+                
+                if (reader.Events != null) {
+                    reader.Events.addEventsListener(this);
+                    reader.Events.setHandheldEvent(true);
+                    reader.Events.setAttachTagDataWithReadEvent(false);
+                    reader.Events.setReaderDisconnectEvent(true);
+                    reader.Events.setBatteryEvent(false);
+                    reader.Events.setInventoryStartEvent(false);
+                    reader.Events.setInventoryStopEvent(false);
+                    reader.Events.setTagReadEvent(true);
+                }
+                
+                isRfidConnected = true;
+                Log.d(TAG, "RFID reader connected successfully");
+                
+            } else {
+                Log.d(TAG, "RFID reader already connected");
+                isRfidConnected = true;
+            }
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to connect to RFID reader", e);
+            isRfidConnected = false;
+            Toast.makeText(getContext(), "Failed to connect to RFID scanner", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void startRfidScan() {
+        // Check if reader is connected
+        if (reader == null || !reader.isConnected()) {
+            Log.w(TAG, "RFID reader not connected, initializing...");
+            Toast.makeText(getContext(), "RFID scanner not ready, initializing...", Toast.LENGTH_SHORT).show();
+            initializeRfidReader();
+            return;
         }
         
-        List<PalletTransactionListByCodeResponse.PalletTransactionItem> filtered = new ArrayList<>();
-        String lowerQuery = query.toLowerCase();
+        if (isRfidScanning) {
+            Log.d(TAG, "RFID scan already in progress");
+            return;
+        }
         
-        for (PalletTransactionListByCodeResponse.PalletTransactionItem transaction : transactions) {
-            String palletCode = transaction.getPalletCode();
-            if (String.valueOf(transaction.getId()).contains(lowerQuery) ||
-                transaction.getType().toLowerCase().contains(lowerQuery) ||
-                (palletCode != null && palletCode.toLowerCase().contains(lowerQuery))) {
-                filtered.add(transaction);
+        try {
+            Log.d(TAG, "Starting RFID scan...");
+            isRfidScanning = true;
+            reader.Actions.Inventory.perform();
+            
+            Toast.makeText(getContext(), "Scanning for RFID tags...", Toast.LENGTH_SHORT).show();
+            
+            // Set timeout
+            rfidTimeoutHandler.postDelayed(() -> {
+                if (isRfidScanning) {
+                    Log.d(TAG, "RFID scan timeout");
+                    stopRfidScan();
+                    Toast.makeText(getContext(), "No RFID tags found", Toast.LENGTH_SHORT).show();
+                }
+            }, 3000);
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to start RFID scan", e);
+            isRfidScanning = false;
+            Toast.makeText(getContext(), "Failed to start RFID scan", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void stopRfidScan() {
+        if (!isRfidScanning || reader == null) {
+            return;
+        }
+        
+        try {
+            reader.Actions.Inventory.stop();
+            isRfidScanning = false;
+            Log.d(TAG, "RFID scan stopped");
+        } catch (Exception e) {
+            Log.e(TAG, "Error stopping RFID scan", e);
+            isRfidScanning = false;
+        }
+        
+        // Cancel timeout
+        rfidTimeoutHandler.removeCallbacksAndMessages(null);
+    }
+
+    // ===== RFID EVENT LISTENERS =====
+
+    @Override
+    public void eventReadNotify(RfidReadEvents rfidReadEvents) {
+        try {
+            if (rfidReadEvents != null && reader != null && reader.Actions != null) {
+                TagData[] tagDataArray = reader.Actions.getReadTags(100);
+                if (tagDataArray != null) {
+                    for (TagData tagData : tagDataArray) {
+                        if (tagData != null && tagData.getTagID() != null) {
+                            String rfidTag = tagData.getTagID();
+                            Log.d(TAG, "RFID tag read: " + rfidTag);
+                            
+                            // Reset scanning flag
+                            isRfidScanning = false;
+                            
+                            // Stop scanning
+                            stopRfidScan();
+                            
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    handleRfidTagScanned(rfidTag);
+                                });
+                            }
+                            break; // Process only first tag
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling RFID read event", e);
+            isRfidScanning = false;
+        }
+    }
+
+    @Override
+    public void eventStatusNotify(RfidStatusEvents rfidStatusEvents) {
+        Log.d(TAG, "RFID status event: " + rfidStatusEvents.StatusEventData.getStatusEventType());
+        
+        if (rfidStatusEvents.StatusEventData.getStatusEventType() == STATUS_EVENT_TYPE.DISCONNECTION_EVENT) {
+            
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    isRfidConnected = false;
+                    isRfidScanning = false;
+                    Toast.makeText(getContext(), "RFID scanner disconnected", Toast.LENGTH_SHORT).show();
+                });
             }
         }
+    }
+
+    private void handleRfidTagScanned(String rfidTag) {
+        Log.d(TAG, "Processing RFID tag: " + rfidTag);
         
-        return filtered;
+        // Set search query and filter type
+        searchQuery = rfidTag;
+        filterType = "rfidtag";
+        
+        // Update search input
+        binding.etSearch.setText(rfidTag);
+        
+        // Reset page and search
+        currentPage = 0;
+        loadTransactions();
+        
+        Toast.makeText(getContext(), "RFID tag scanned: " + rfidTag, Toast.LENGTH_SHORT).show();
     }
 
     private void updatePaginationUI() {
@@ -221,19 +465,14 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
         binding.btnPrevPage.setEnabled(hasPrev);
         binding.btnNextPage.setEnabled(hasNext);
         
-        // Make sure buttons and container are visible
+        // Make sure buttons are visible
         binding.btnPrevPage.setVisibility(View.VISIBLE);
         binding.btnNextPage.setVisibility(View.VISIBLE);
-        
-        // Make sure the pagination container is visible
-        if (binding.llPaginationControls != null) {
-            binding.llPaginationControls.setVisibility(View.VISIBLE);
-        }
         
         // Update page info if available
         if (binding.tvPageInfo != null) {
             int totalPages = Math.max(1, (int) Math.ceil((double) totalItems / itemsPerPage));
-            binding.tvPageInfo.setText("Page " + (currentPage + 1) + " of " + totalPages);
+            binding.tvPageInfo.setText(String.valueOf(currentPage + 1));
         }
         
         // Debug logs
@@ -243,8 +482,6 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
         android.util.Log.d("PalletActivity", "Current Page: " + currentPage);
         android.util.Log.d("PalletActivity", "Total Items: " + totalItems);
         android.util.Log.d("PalletActivity", "Items Per Page: " + itemsPerPage);
-        android.util.Log.d("PalletActivity", "Pagination container visible: " + 
-            (binding.llPaginationControls != null ? binding.llPaginationControls.getVisibility() == View.VISIBLE : "null"));
     }
 
     @Override
@@ -338,9 +575,36 @@ public class PalletActivityFragment extends Fragment implements PalletTransactio
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        
+        // Cleanup search timer
         if (searchTimer != null) {
             searchTimer.cancel();
         }
+        
+        // Cleanup RFID resources
+        if (rfidTimeoutHandler != null) {
+            rfidTimeoutHandler.removeCallbacksAndMessages(null);
+        }
+        
+        try {
+            if (reader != null) {
+                if (isRfidScanning) {
+                    reader.Actions.Inventory.stop();
+                }
+                if (reader.Events != null) {
+                    reader.Events.removeEventsListener(this);
+                }
+                if (reader.isConnected()) {
+                    reader.disconnect();
+                }
+            }
+            if (readers != null) {
+                readers.Dispose();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Error during RFID cleanup: " + e.getMessage());
+        }
+        
         binding = null;
     }
 }

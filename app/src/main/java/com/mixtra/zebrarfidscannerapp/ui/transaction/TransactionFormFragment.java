@@ -24,6 +24,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,6 +44,10 @@ public class TransactionFormFragment extends Fragment {
     private int palletId;
     private String transactionType;
     private String transactionDate;
+    
+    // Store current warehouse and location values for reliable access
+    private String currentWarehouseCode = "";
+    private String currentLocationCode = "";
 
 
     @Override
@@ -75,11 +80,55 @@ public class TransactionFormFragment extends Fragment {
 
         // Setup RecyclerView
         batchItemAdapter = new BatchItemAdapter(batchItems);
+        batchItemAdapter.setOnItemRemoveListener(this::removeBatchItem);
         binding.rvBatchItems.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvBatchItems.setAdapter(batchItemAdapter);
 
+        // Setup text change listeners for warehouse and location fields
+        setupTextChangeListeners();
+
         // Load transaction data from arguments if available
         loadTransactionData();
+    }
+
+    private void setupTextChangeListeners() {
+        // Add text change listeners to track warehouse and location values
+        // This helps capture values entered by barcode scanners
+        if (binding.tvWarehouse != null) {
+            binding.tvWarehouse.addTextChangedListener(new android.text.TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    currentWarehouseCode = s.toString().trim();
+                    Log.d("TransactionForm", "Warehouse value changed: '" + currentWarehouseCode + "'");
+                }
+
+                @Override
+                public void afterTextChanged(android.text.Editable s) {
+                    currentWarehouseCode = s.toString().trim();
+                }
+            });
+        }
+
+        if (binding.tvLocation != null) {
+            binding.tvLocation.addTextChangedListener(new android.text.TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    currentLocationCode = s.toString().trim();
+                    Log.d("TransactionForm", "Location value changed: '" + currentLocationCode + "'");
+                }
+
+                @Override
+                public void afterTextChanged(android.text.Editable s) {
+                    currentLocationCode = s.toString().trim();
+                }
+            });
+        }
     }
 
     private void setupClickListeners() {
@@ -124,27 +173,31 @@ public class TransactionFormFragment extends Fragment {
             // Store data in class fields for later use
             this.transactionId = args.getInt("transactionId", 0);
             this.palletId = args.getInt("palletId", 1);
-            this.transactionType = args.getString("type", "IN");
+            this.transactionType = args.getString("transactionType", "IN");
             this.transactionDate = args.getString("transactionDate", "");
             String palletCode = args.getString("palletCode", "");
             String rfidTag = args.getString("rfidTag", "");
+            
+            Log.d("TransactionForm", "Arguments received - palletCode: '" + palletCode + "', rfidTag: '" + rfidTag + "'");
             
             if (this.transactionId > 0) {
                 // If we have a transaction ID, fetch the full transaction data from API
                 loadFullTransactionData();
             } else {
                 // Set the UI values from bundle arguments
-                binding.tvVoucherNo.setText("TXN-" + transactionId);
                 binding.tvTransactionType.setText(transactionType);
-                binding.tvPalletRfid.setText(rfidTag != null && !rfidTag.trim().isEmpty() ? rfidTag : palletCode);
-                binding.tvWarehouse.setText("Main Warehouse");
-                binding.tvLocation.setText("Location-A1");
+                binding.tvPalletRfid.setText(rfidTag != null && !rfidTag.trim().isEmpty() ? rfidTag : "");
+                binding.tvPalletCode.setText(palletCode != null && !palletCode.trim().isEmpty() ? palletCode : "");
+                currentWarehouseCode = "Main Warehouse";
+                currentLocationCode = "Location-A1";
+                binding.tvWarehouse.setText(currentWarehouseCode);
+                binding.tvLocation.setText(currentLocationCode);
                 
                 // Format transaction date
                 if (!transactionDate.isEmpty()) {
                     try {
-                        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-                        SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+                        SimpleDateFormat inputFormat = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.ENGLISH);
+                        SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.ENGLISH);
                         Date date = inputFormat.parse(transactionDate);
                         binding.tvTransactionDate.setText(outputFormat.format(date));
                     } catch (Exception e) {
@@ -160,12 +213,13 @@ public class TransactionFormFragment extends Fragment {
             this.transactionType = "IN";
             this.transactionDate = "";
             this.palletId = 1;
-            binding.tvVoucherNo.setText("IN-123456");
             binding.tvTransactionDate.setText("22 Sep 2025");
             binding.tvTransactionType.setText("IN");
             binding.tvPalletRfid.setText("K4E55");
-            binding.tvWarehouse.setText("Main Warehouse");
-            binding.tvLocation.setText("bla bla");
+            currentWarehouseCode = "Main Warehouse";
+            currentLocationCode = "bla bla";
+            binding.tvWarehouse.setText(currentWarehouseCode);
+            binding.tvLocation.setText(currentLocationCode);
         }
     }
     
@@ -208,10 +262,11 @@ public class TransactionFormFragment extends Fragment {
     
     private void setBasicTransactionUI() {
         // Set basic UI values when API call fails
-        binding.tvVoucherNo.setText("TXN-" + transactionId);
         binding.tvTransactionType.setText(transactionType);
-        binding.tvWarehouse.setText("Main Warehouse");
-        binding.tvLocation.setText("Location-A1");
+        currentWarehouseCode = "Main Warehouse";
+        currentLocationCode = "Location-A1";
+        binding.tvWarehouse.setText(currentWarehouseCode);
+        binding.tvLocation.setText(currentLocationCode);
         binding.tvTransactionDate.setText("22 Sep 2025"); // fallback
         
         // Use default batch items
@@ -228,26 +283,41 @@ public class TransactionFormFragment extends Fragment {
             this.transactionDate = data.getTransactionDate();
             
             // Set transaction details from the nested data
-            binding.tvVoucherNo.setText("TRANSACTION-" + data.getId()); // Use transaction ID as voucher
             binding.tvTransactionType.setText(data.getType());
             
-            // Get pallet RFID from nested pallet object
+            // Get pallet data from nested pallet object
             if (data.getPallet() != null) {
-                binding.tvPalletRfid.setText(data.getPallet().getRfidTag());
+                String palletCode = data.getPallet().getCode();
+                String rfidTag = data.getPallet().getRfidTag();
+                
+                Log.d("TransactionForm", "API response - palletCode: '" + palletCode + "', rfidTag: '" + rfidTag + "'");
+                
+                binding.tvPalletRfid.setText(rfidTag);
+                binding.tvPalletCode.setText(palletCode); // Set the correct pallet code from API
             }
             
             // For now use static values since these might come from related objects
-            binding.tvWarehouse.setText("Main Warehouse");
-            binding.tvLocation.setText("Location-" + (data.getLocationId() != null ? data.getLocationId() : "N/A"));
+//            var locationName = (data.getLocation() != null && data.getLocation().getName() != null) ? data.getLocation().getName() : "";
+//            var locationCode = (data.getLocation() != null && data.getLocation().getCode() != null) ? data.getLocation().getCode() : "";
+//            var warehouseName = (data.getWarehouse() != null && data.getWarehouse().getName() != null) ? data.getWarehouse().getName() : "";
+//            var warehouseCode = (data.getWarehouse() != null && data.getWarehouse().getCode() != null) ? data.getWarehouse().getCode() : "";
+//            binding.tvWarehouse.setText(MessageFormat.format("{0}- {1}", warehouseCode, warehouseName));
+//            binding.tvLocation.setText(MessageFormat.format("{0}- {1}", locationCode, locationName));
+            currentWarehouseCode = data.getWarehouseText() != null ? data.getWarehouseText() : "";
+            currentLocationCode = data.getLocationText() != null ? data.getLocationText() : "";
+            binding.tvWarehouse.setText(currentWarehouseCode);
+            binding.tvLocation.setText(currentLocationCode);
 
             // Format date
             try {
                 String dateToFormat = data.getTransactionDate();
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-                SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault());
                 Date date = inputFormat.parse(dateToFormat);
+                assert date != null;
                 binding.tvTransactionDate.setText(outputFormat.format(date));
             } catch (Exception e) {
+                Log.e("TransactionForm", "Date parsing error: " + e.getMessage());
                 // Try with the dateIn field as fallback
                 try {
                     String dateToFormat = data.getDateIn();
@@ -308,8 +378,8 @@ public class TransactionFormFragment extends Fragment {
             }
         } else {
             // No existing details, use default empty items
-            Log.d("TransactionForm", "No existing transaction details found (null or empty), using defaults");
-            addDefaultBatchItems();
+            // Log.d("TransactionForm", "No existing transaction details found (null or empty), using defaults");
+            // addDefaultBatchItems();
         }
     }
     
@@ -332,7 +402,20 @@ public class TransactionFormFragment extends Fragment {
         }
     }
     
+    private void removeBatchItem(int position) {
+        if (position >= 0 && position < batchItems.size()) {
+            batchItems.remove(position);
+            if (batchItemAdapter != null) {
+                batchItemAdapter.notifyItemRemoved(position);
+                batchItemAdapter.notifyItemRangeChanged(position, batchItems.size());
+            }
+        }
+    }
+    
     private void updatePalletTransaction() {
+        // Sync field values before processing (handles barcode scanner input)
+        syncFieldValues();
+        
         // Log current batch items for debugging
         Log.d("TransactionForm", "Starting update with " + batchItems.size() + " batch items");
         for (int i = 0; i < batchItems.size(); i++) {
@@ -364,23 +447,30 @@ public class TransactionFormFragment extends Fragment {
         Log.d("TransactionForm", "Total details prepared: " + details.size());
         
         // If no batch items with data, add at least one default detail
-        if (details.isEmpty()) {
-            String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).format(new Date());
-            PalletTransactionUpdateRequest.PalletTransactionDetail detail = 
-                new PalletTransactionUpdateRequest.PalletTransactionDetail(
-                    transactionId,
-                    "DEFAULT_BATCH",
-                    "1",
-                    "Default transaction detail",
-                    currentTime,
-                    currentTime
-                );
-            details.add(detail);
-            Log.d("TransactionForm", "No user data found, added default detail");
-        }
+        // if (details.isEmpty()) {
+        //     String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).format(new Date());
+        //     PalletTransactionUpdateRequest.PalletTransactionDetail detail = 
+        //         new PalletTransactionUpdateRequest.PalletTransactionDetail(
+        //             transactionId,
+        //             "DEFAULT_BATCH",
+        //             "1",
+        //             "Default transaction detail",
+        //             currentTime,
+        //             currentTime
+        //         );
+        //     details.add(detail);
+        //     Log.d("TransactionForm", "No user data found, added default detail");
+        // }
         
         // Create the update request
         String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).format(new Date());
+        
+        // Get warehouse and location values using robust method
+        String warehouseCode = getCurrentWarehouseCode();
+        String locationCode = getCurrentLocationCode();
+        
+        Log.d("TransactionForm", "Building request with warehouse: '" + warehouseCode + "', location: '" + locationCode + "'");
+        
         PalletTransactionUpdateRequest request = new PalletTransactionUpdateRequest(
             transactionId,
             palletId,
@@ -389,6 +479,8 @@ public class TransactionFormFragment extends Fragment {
             transactionType.equals("IN") ? "Receiving" : "Shipping", // transactionType
             transactionType, // type
             "Transaction confirmed via mobile app", // remark
+            warehouseCode, // warehouseCode
+            locationCode, // locationCode
             details
         );
         
@@ -422,6 +514,100 @@ public class TransactionFormFragment extends Fragment {
                 showErrorMessage("Network error: " + t.getMessage());
             }
         });
+    }
+    
+    /**
+     * Sync field values from UI controls to ensure we have the latest values
+     * This is especially important for barcode scanner input
+     */
+    private void syncFieldValues() {
+        try {
+            if (binding != null && binding.tvWarehouse != null) {
+                String warehouseText = binding.tvWarehouse.getText() != null ? 
+                    binding.tvWarehouse.getText().toString().trim() : "";
+                if (!warehouseText.isEmpty()) {
+                    currentWarehouseCode = warehouseText;
+                    Log.d("TransactionForm", "Synced warehouse: '" + currentWarehouseCode + "'");
+                }
+            }
+            
+            if (binding != null && binding.tvLocation != null) {
+                String locationText = binding.tvLocation.getText() != null ? 
+                    binding.tvLocation.getText().toString().trim() : "";
+                if (!locationText.isEmpty()) {
+                    currentLocationCode = locationText;
+                    Log.d("TransactionForm", "Synced location: '" + currentLocationCode + "'");
+                }
+            }
+        } catch (Exception e) {
+            Log.w("TransactionForm", "Error syncing field values: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Robust method to get current warehouse code that works with barcode scanners
+     */
+    private String getCurrentWarehouseCode() {
+        // First try to get from our tracked variable
+        if (currentWarehouseCode != null && !currentWarehouseCode.trim().isEmpty()) {
+            Log.d("TransactionForm", "Using tracked warehouse code: '" + currentWarehouseCode + "'");
+            return currentWarehouseCode.trim();
+        }
+        
+        // Fallback: try to get directly from the EditText
+        if (binding != null && binding.tvWarehouse != null) {
+            try {
+                // Force refresh of the text content
+                binding.tvWarehouse.clearFocus();
+                String textValue = binding.tvWarehouse.getText() != null ? 
+                    binding.tvWarehouse.getText().toString().trim() : "";
+                
+                if (!textValue.isEmpty()) {
+                    currentWarehouseCode = textValue; // Update our tracking variable
+                    Log.d("TransactionForm", "Got warehouse from EditText: '" + textValue + "'");
+                    return textValue;
+                }
+            } catch (Exception e) {
+                Log.w("TransactionForm", "Error getting warehouse text: " + e.getMessage());
+            }
+        }
+        
+        // Final fallback
+        Log.w("TransactionForm", "Using fallback warehouse code");
+        return "Main Warehouse";
+    }
+    
+    /**
+     * Robust method to get current location code that works with barcode scanners
+     */
+    private String getCurrentLocationCode() {
+        // First try to get from our tracked variable
+        if (currentLocationCode != null && !currentLocationCode.trim().isEmpty()) {
+            Log.d("TransactionForm", "Using tracked location code: '" + currentLocationCode + "'");
+            return currentLocationCode.trim();
+        }
+        
+        // Fallback: try to get directly from the EditText
+        if (binding != null && binding.tvLocation != null) {
+            try {
+                // Force refresh of the text content
+                binding.tvLocation.clearFocus();
+                String textValue = binding.tvLocation.getText() != null ? 
+                    binding.tvLocation.getText().toString().trim() : "";
+                
+                if (!textValue.isEmpty()) {
+                    currentLocationCode = textValue; // Update our tracking variable
+                    Log.d("TransactionForm", "Got location from EditText: '" + textValue + "'");
+                    return textValue;
+                }
+            } catch (Exception e) {
+                Log.w("TransactionForm", "Error getting location text: " + e.getMessage());
+            }
+        }
+        
+        // Final fallback
+        Log.w("TransactionForm", "Using fallback location code");
+        return "Location-A1";
     }
     
     private void showErrorMessage(String message) {

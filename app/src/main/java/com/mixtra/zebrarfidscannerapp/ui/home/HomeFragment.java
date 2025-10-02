@@ -51,10 +51,17 @@ public class HomeFragment extends Fragment {
         });
         
         binding.cardTransactions.setOnClickListener(v -> {
-            // Navigate to transactions
-            // TODO: Implement navigation
+            // Navigate to pallet activity list
+            try {
+                Navigation.findNavController(v).navigate(R.id.action_nav_home_to_nav_pallet_activity);
+            } catch (Exception e) {
+                // Fallback - show error message
+                android.widget.Toast.makeText(getContext(), "Navigation to pallet activity failed", android.widget.Toast.LENGTH_SHORT).show();
+            }
         });
         
+        // Temporarily commented out - IN/OUT cards are hidden until ready
+        /*
         binding.cardIn.setOnClickListener(v -> {
             // Navigate to IN transactions
             // TODO: Implement navigation
@@ -64,6 +71,7 @@ public class HomeFragment extends Fragment {
             // Navigate to OUT transactions
             // TODO: Implement navigation
         });
+        */
         
         return root;
     }

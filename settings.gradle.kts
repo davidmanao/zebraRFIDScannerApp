@@ -20,5 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Zebra RFID Scanner App"
-include(":app")
+include(":app",":RFIDAPI3Library")
  

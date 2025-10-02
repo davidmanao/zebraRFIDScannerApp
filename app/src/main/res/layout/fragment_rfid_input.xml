@@ -31,78 +31,242 @@
                 android:textColor="@android:color/black"
                 android:layout_marginBottom="8dp" />
 
+            <!-- Input Mode Selection -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Point camera at QR code or enter manually"
-                android:textSize="16sp"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginBottom="32dp" />
-
-            <!-- Camera/QR Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/camera_section"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginBottom="32dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#F5F5F5"
-                android:clickable="true"
-                android:focusable="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="64dp"
-                        android:src="@drawable/ic_camera"
-                        android:contentDescription="Camera"
-                        android:layout_marginBottom="12dp"
-                        app:tint="@android:color/darker_gray" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Manual Entry Section -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Manual Entry"
-                android:textSize="20sp"
+                android:text="Mode"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="12dp" />
 
-            <TextView
+            <RadioGroup
+                android:id="@+id/rg_input_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Enter pallet ID if QR code is not available"
-                android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginBottom="24dp" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
 
-            <!-- Input Fields -->
-            <com.google.android.material.textfield.TextInputLayout
+                <RadioButton
+                    android:id="@+id/rb_barcode_mode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Barcode"
+                    android:textSize="10sp"
+                    android:padding="3dp" />
+
+                <RadioButton
+                    android:id="@+id/rb_manual_mode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Manual"
+                    android:textSize="10sp"
+                    android:padding="3dp" />
+
+                <RadioButton
+                    android:id="@+id/rb_rfid_mode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="RFID"
+                    android:textSize="10sp"
+                    android:checked="true"
+                    android:padding="3dp" />
+
+            </RadioGroup>
+
+            <!-- Camera/QR Section -->
+            <LinearLayout
+                android:id="@+id/barcode_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:hint="Enter code pallet"
-                app:startIconDrawable="@drawable/ic_code"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                android:orientation="vertical"
+                android:visibility="gone">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_code_pallet"
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
+                    android:text="Barcode Scanning"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="8dp" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Use hardware scan button or tap camera section"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="24dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/camera_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginBottom="32dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#F5F5F5"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="64dp"
+                            android:src="@drawable/ic_camera"
+                            android:contentDescription="Camera"
+                            android:layout_marginBottom="12dp"
+                            app:tint="@android:color/darker_gray" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Manual Entry Section -->
+            <LinearLayout
+                android:id="@+id/manual_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Manual Entry"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Enter pallet ID if QR code is not available"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="24dp" />
+
+                <!-- Input Fields -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Enter code pallet"
+                    app:startIconDrawable="@drawable/ic_code"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_code_pallet"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <!-- RFID Section -->
+            <LinearLayout
+                android:id="@+id/rfid_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="RFID Scanning"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Use hardware RFID trigger button to scan RFID tags"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- RFID Scan Area -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/rfid_scan_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#F0F8FF"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/ic_rfid"
+                            android:layout_marginBottom="8dp"
+                            android:alpha="0.6" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Press RFID trigger button"
+                            android:textSize="14sp"
+                            android:textColor="@android:color/darker_gray"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Hold device near RFID tag"
+                            android:textSize="12sp"
+                            android:textColor="@android:color/darker_gray" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- RFID Input Display -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="RFID Tag ID"
+                    app:startIconDrawable="@drawable/ic_rfid"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_rfid_tag"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:focusable="false"
+                        android:clickable="false"
+                        android:hint="Scanned RFID tag will appear here" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
 
 
             <!-- Add Pallet Button -->

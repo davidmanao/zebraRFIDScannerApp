@@ -44,6 +44,12 @@ public class PalletTransactionResponse {
         
         @SerializedName("warehouseId")
         private Integer warehouseId;
+
+        @SerializedName("warehouseText")
+        private String WarehouseText;
+
+        @SerializedName("locationText")
+        private String LocationText;
         
         @SerializedName("transactionDate")
         private String transactionDate;
@@ -117,6 +123,19 @@ public class PalletTransactionResponse {
             this.warehouseId = warehouseId;
         }
 
+        public String getWarehouseText() {
+            return WarehouseText;
+        }
+        public void setWarehouseText(String warehouseText) {
+            WarehouseText = warehouseText;
+        }
+
+        public String getLocationText() {
+            return LocationText;
+        }
+        public void setLocationText(String locationText) {
+            LocationText = locationText;
+        }
         public String getTransactionDate() {
             return transactionDate;
         }
@@ -197,16 +216,16 @@ public class PalletTransactionResponse {
             this.palletTransactionDetails = palletTransactionDetails;
         }
 
-        public Object getLocation() {
-            return location;
+        public Location getLocation() {
+            return (Location) location;
         }
 
         public void setLocation(Object location) {
             this.location = location;
         }
 
-        public Object getWarehouse() {
-            return warehouse;
+        public Warehouse getWarehouse() {
+            return (Warehouse) warehouse;
         }
 
         public void setWarehouse(Object warehouse) {
@@ -400,7 +419,53 @@ public class PalletTransactionResponse {
             this.rfidTag = rfidTag;
         }
     }
-    
+
+    public static class Location{
+        @SerializedName("id")
+        private int id;
+
+        @SerializedName("name")
+        private String name;
+        @SerializedName("code")
+        private String code;
+        @SerializedName("remark")
+        private String remark;
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+    }
+
+    public static  class Warehouse{
+        @SerializedName("id")
+        private int id;
+
+        @SerializedName("name")
+        private String name;
+        @SerializedName("code")
+        private String code;
+        @SerializedName("remark")
+        private String remark;
+
+        public String getCode() {
+            return code;
+        }
+        public String getName() {
+            return name;
+        }
+        public int getId() {
+            return id;
+        }
+    }
     // TransactionDetail class for API response
     public static class TransactionDetail {
         @SerializedName("id")

@@ -10,10 +10,10 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,214 +25,232 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Transaction Form"
-                android:textSize="28sp"
-                android:textStyle="bold"
                 android:textColor="@android:color/black"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Enter pallet movement details"
-                android:textSize="16sp"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginBottom="32dp" />
+                android:textSize="28sp"
+                android:textStyle="bold" />
 
             <!-- Transaction Details Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:text="Transaction Details"
-                android:textSize="18sp"
-                android:textStyle="bold"
                 android:textColor="@android:color/black"
-                android:layout_marginBottom="16dp" />
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <!-- Voucher No -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-                
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Voucher No:"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray" />
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tv_voucher_no"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="IN-123456"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
             </LinearLayout>
 
             <!-- Transaction Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-                
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Transaction Date:"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray" />
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tv_transaction_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="22 Sep 2025"
+                    android:textColor="@android:color/black"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Transaction Type -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-                
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Transaction Type:"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray" />
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
+
+                <!-- Icon -->
+
+                    <TextView
+                        android:id="@+id/tv_transaction_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="IN"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/ic_transaction_type_badge_rectangle"
+                        android:textSize="14sp"
+                        android:layout_gravity="end|top"
+                        android:gravity="center"
+                        android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Pallet Code -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tv_transaction_type"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Pallet Code:"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_pallet_code"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="IN"
+                    android:text="P-SAP"
+                    android:textColor="@android:color/black"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Pallet RFID -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
-                
+                android:layout_marginBottom="24dp"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Pallet RFID:"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray" />
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tv_pallet_rfid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="K4E55"
+                    android:textColor="@android:color/black"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Location Details Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:text="Location Details"
-                android:textSize="18sp"
-                android:textStyle="bold"
                 android:textColor="@android:color/black"
-                android:layout_marginBottom="16dp" />
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <!-- Warehouse -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-                
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Warehouse:"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray" />
+           <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tv_warehouse"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Main Warehouse"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
-            </LinearLayout>
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Warehouse:"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="14sp" />
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:endIconMode="clear_text"
+        android:background="@drawable/input_background"
+        android:paddingHorizontal="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tv_warehouse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>
             <!-- Location -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="32dp">
-                
+                android:layout_marginBottom="32dp"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Location:"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray" />
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/tv_location"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="bla bla"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
+                    android:layout_weight="1"
+                    app:endIconMode="clear_text"
+                    android:background="@drawable/input_background"
+                    android:paddingHorizontal="12dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tv_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="10sp" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <!-- Batch Items Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
-                
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Batch Items"
+                    android:textColor="@android:color/black"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
+                    android:textStyle="bold" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fab_add_item"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="Add item"
                     android:src="@drawable/ic_add"
-                    app:fabSize="mini"
                     app:backgroundTint="#4CAF50"
-                    android:contentDescription="Add item" />
+                    app:fabSize="mini" />
             </LinearLayout>
 
             <!-- Batch Items List -->
@@ -242,6 +260,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="32dp"
                 android:minHeight="150dp" />
+
 
             <!-- Action Buttons -->
             <LinearLayout
@@ -253,32 +272,32 @@
                 <!-- Cancel Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_cancel"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="0dp"
                     android:layout_height="56dp"
-                    android:layout_weight="1"
                     android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
                     android:text="Cancel"
+                    android:textColor="@android:color/darker_gray"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/darker_gray"
+                    app:backgroundTint="@android:color/transparent"
                     app:cornerRadius="12dp"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     app:strokeColor="@android:color/darker_gray"
-                    app:strokeWidth="1dp"
-                    app:backgroundTint="@android:color/transparent" />
+                    app:strokeWidth="1dp" />
 
                 <!-- Save Confirmation Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_save_confirmation"
                     android:layout_width="0dp"
                     android:layout_height="56dp"
-                    android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:text="Save Confirmation"
+                    android:layout_weight="1"
+                    android:text="Save"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:cornerRadius="12dp"
                     app:backgroundTint="#64B5F6"
+                    app:cornerRadius="12dp"
                     app:icon="@drawable/ic_arrow_forward"
                     app:iconGravity="end" />
 
@@ -294,66 +313,68 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Bottom Navigation -->
     <LinearLayout
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:orientation="horizontal"
-        android:gravity="center"
+        android:layout_height="1dp"
         android:background="@android:color/white"
         android:elevation="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_marginEnd="50dp"
             android:gravity="center"
-            android:layout_marginEnd="50dp">
-            
+            android:orientation="vertical"
+            android:visibility="gone">
+
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_dashboard"
                 android:layout_marginBottom="4dp"
-                android:tint="@android:color/darker_gray" />
-            
+                android:src="@drawable/ic_dashboard"
+                app:tint="@android:color/darker_gray" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dashboard"
-                android:textSize="12sp"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_marginStart="50dp"
             android:gravity="center"
-            android:layout_marginStart="50dp">
-            
+            android:orientation="vertical"
+            android:visibility="gone">
+
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_transactions"
                 android:layout_marginBottom="4dp"
+                android:src="@drawable/ic_transactions"
                 android:tint="#64B5F6" />
-            
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Transactions"
-                android:textSize="12sp"
-                android:textColor="#64B5F6" />
+                android:textColor="#64B5F6"
+                android:textSize="12sp" />
         </LinearLayout>
 
     </LinearLayout>

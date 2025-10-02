@@ -5,6 +5,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,9 +20,18 @@ import java.util.List;
 public class BatchItemAdapter extends RecyclerView.Adapter<BatchItemAdapter.ViewHolder> {
     
     private List<PalletTransactionResponse.BatchItem> batchItems;
+    private OnItemRemoveListener onItemRemoveListener;
+    
+    public interface OnItemRemoveListener {
+        void onItemRemove(int position);
+    }
 
     public BatchItemAdapter(List<PalletTransactionResponse.BatchItem> batchItems) {
         this.batchItems = batchItems;
+    }
+    
+    public void setOnItemRemoveListener(OnItemRemoveListener listener) {
+        this.onItemRemoveListener = listener;
     }
 
     @NonNull
@@ -86,6 +96,13 @@ public class BatchItemAdapter extends RecyclerView.Adapter<BatchItemAdapter.View
         // Add the watchers
         holder.etBatchNo.addTextChangedListener(holder.batchNoWatcher);
         holder.etQuantity.addTextChangedListener(holder.quantityWatcher);
+        
+        // Set up remove button click listener
+        holder.btnRemoveItem.setOnClickListener(v -> {
+            if (onItemRemoveListener != null) {
+                onItemRemoveListener.onItemRemove(position);
+            }
+        });
     }
 
     @Override
@@ -97,6 +114,7 @@ public class BatchItemAdapter extends RecyclerView.Adapter<BatchItemAdapter.View
         TextView tvItemTitle;
         TextInputEditText etBatchNo;
         TextInputEditText etQuantity;
+        ImageButton btnRemoveItem;
         TextWatcher batchNoWatcher;
         TextWatcher quantityWatcher;
 
@@ -105,6 +123,7 @@ public class BatchItemAdapter extends RecyclerView.Adapter<BatchItemAdapter.View
             tvItemTitle = itemView.findViewById(R.id.tv_item_title);
             etBatchNo = itemView.findViewById(R.id.et_batch_no);
             etQuantity = itemView.findViewById(R.id.et_quantity);
+            btnRemoveItem = itemView.findViewById(R.id.btn_remove_item);
         }
     }
 }

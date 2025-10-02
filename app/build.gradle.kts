@@ -52,4 +52,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation(project(":RFIDAPI3Library"))
 }

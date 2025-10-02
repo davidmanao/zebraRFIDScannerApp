@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.widget.TextView;
@@ -22,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.mixtra.zebrarfidscannerapp.api.RfidApiManager;
 import com.mixtra.zebrarfidscannerapp.databinding.ActivityMainBinding;
 import com.mixtra.zebrarfidscannerapp.ui.login.LoginActivity;
+import com.mixtra.zebrarfidscannerapp.ui.palletManagement.PalletManagementFragment;
+import com.mixtra.zebrarfidscannerapp.ui.PalletActivity.PalletActivityFragment;
 import com.mixtra.zebrarfidscannerapp.utils.UserManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_pallet_management, R.id.nav_pallet_activity)
+                R.id.nav_home, R.id.nav_pallet_management)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
@@ -138,6 +141,65 @@ public class MainActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // Delegate key events to fragments if they can handle RFID
+        try {
+            androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager()
+                    .findFragmentById(R.id.nav_host_fragment_content_main);
+            
+            if (currentFragment != null) {
+                // Navigate through child fragments to find the active fragment
+                androidx.fragment.app.Fragment navFragment = currentFragment.getChildFragmentManager()
+                        .getPrimaryNavigationFragment();
+                
+                if (navFragment instanceof PalletManagementFragment) {
+                    PalletManagementFragment palletFragment = (PalletManagementFragment) navFragment;
+                    if (palletFragment.onKeyDown(keyCode, event)) {
+                        return true;
+                    }
+                } else if (navFragment instanceof PalletActivityFragment) {
+                    PalletActivityFragment activityFragment = (PalletActivityFragment) navFragment;
+                    if (activityFragment.onKeyDown(keyCode, event)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Log error but don't crash the app
+            android.util.Log.e("MainActivity", "Error delegating key event", e);
+        }
+        
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        // Delegate key events to PalletManagementFragment if it's the current fragment
+        try {
+            androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager()
+                    .findFragmentById(R.id.nav_host_fragment_content_main);
+            
+            if (currentFragment != null) {
+                // Navigate through child fragments to find PalletManagementFragment
+                androidx.fragment.app.Fragment navFragment = currentFragment.getChildFragmentManager()
+                        .getPrimaryNavigationFragment();
+                
+                if (navFragment instanceof PalletManagementFragment) {
+                    PalletManagementFragment palletFragment = (PalletManagementFragment) navFragment;
+                    if (palletFragment.onKeyUp(keyCode, event)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Log error but don't crash the app
+            android.util.Log.e("MainActivity", "Error delegating key event", e);
+        }
+        
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override

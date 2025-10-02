@@ -24,7 +24,7 @@ public class RfidApiManager {
     private String deviceId;
     private String currentUser;
     private String currentLocation;
-    
+
     // Callback interfaces
     public interface ApiCallback<T> {
         void onSuccess(T result);
@@ -199,67 +199,5 @@ public class RfidApiManager {
     public String getDeviceId() {
         return deviceId;
     }
-    
-    // ========================
-    // INVENTORY OPERATIONS
-    // ========================
-    
-    /**
-     * Start an inventory session
-     */
-    public void startInventorySession(String sessionName, ApiCallback<Map<String, Object>> callback) {
-        // Check if we're using the default placeholder URL
-        String baseUrl = ApiClient.getInstance(context).getBaseUrl();
-        if (baseUrl.contains("your-api-server.com")) {
-            Log.w(TAG, "Skipping API call - using placeholder URL. Configure API endpoint first.");
-            if (callback != null) {
-                callback.onError("API not configured - using placeholder URL");
-            }
-            return;
-        }
-        
-        Map<String, Object> sessionData = new HashMap<>();
-        sessionData.put("session_name", sessionName);
-        sessionData.put("device_id", deviceId);
-        sessionData.put("started_by", currentUser);
-        sessionData.put("location", currentLocation);
-        sessionData.put("start_time", new java.util.Date().toString());
-        
-        Log.d(TAG, "Starting inventory session: " + sessionName);
-        
-        Call<ApiResponse<Map<String, Object>>> call = apiService.startInventorySession(sessionData);
-        call.enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse<Map<String, Object>> apiResponse = response.body();
-                    if (apiResponse.isSuccess()) {
-                        Log.d(TAG, "Inventory session started successfully: " + sessionName);
-                        if (callback != null) {
-                            callback.onSuccess(apiResponse.getData());
-                        }
-                    } else {
-                        Log.e(TAG, "API error starting inventory session: " + apiResponse.getMessage());
-                        if (callback != null) {
-                            callback.onError(apiResponse.getMessage());
-                        }
-                    }
-                } else {
-                    String error = "HTTP " + response.code() + ": " + response.message();
-                    Log.e(TAG, "HTTP error starting inventory session: " + error);
-                    if (callback != null) {
-                        callback.onError(error);
-                    }
-                }
-            }
-            
-            @Override
-            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                Log.e(TAG, "Network error starting inventory session: " + t.getMessage());
-                if (callback != null) {
-                    callback.onError("Network error: " + t.getMessage());
-                }
-            }
-        });
-    }
+
 }

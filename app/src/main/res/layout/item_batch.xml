@@ -13,15 +13,34 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_item_title"
+        <!-- Header with title and remove button -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Item #1"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="8dp" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tv_item_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Item #1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black" />
+
+            <ImageButton
+                android:id="@+id/btn_remove_item"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_delete"
+                android:contentDescription="Remove item"
+                android:tint="@android:color/holo_red_dark"
+                android:scaleType="fitCenter" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -41,15 +60,22 @@
                     android:textSize="12sp"
                     android:textColor="@android:color/darker_gray"
                     android:layout_marginBottom="4dp" />
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_batch_no"
+                
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:hint="Batch number"
-                    android:textSize="14sp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
                     android:background="@drawable/input_background"
-                    android:paddingHorizontal="12dp" />
+                    android:paddingHorizontal="12dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_batch_no"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Batch number"
+                        android:textSize="14sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
 
@@ -68,15 +94,22 @@
                     android:textColor="@android:color/darker_gray"
                     android:layout_marginBottom="4dp" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_quantity"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:hint="0"
-                    android:inputType="number"
-                    android:textSize="14sp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
                     android:background="@drawable/input_background"
-                    android:paddingHorizontal="12dp" />
+                    android:paddingHorizontal="12dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_quantity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="0"
+                        android:inputType="number"
+                        android:textSize="14sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
 

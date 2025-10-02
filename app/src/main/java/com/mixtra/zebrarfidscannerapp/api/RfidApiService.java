@@ -211,7 +211,7 @@ public interface RfidApiService {
      * PUT /Pallet/{id}
      */
     @PUT("Pallet/rfid")
-    Call<ApiResponse<PalletMaster>> updatePallet(@Body PalletMaster pallet);
+    Call<ApiResponse<PalletDetailResponse>> updatePallet(@Body PalletUpdateRequest pallet);
     
     /**
      * Get pallet data by ID
@@ -242,7 +242,14 @@ public interface RfidApiService {
      */
     @GET("Pallet/code/{code}")
     Call<PalletListResponse.SinglePalletResponse> getPalletByCode(@Path("code") String code);
-    
+
+    /**
+     * Get pallet by code (for rfid scan)
+     * GET /Pallet/rfid/{rfidTag}
+     */
+    @GET("Pallet/rfid/{rfidTag}")
+    Call<PalletListResponse.SinglePalletResponse> getPalletByRfid(@Path("rfidTag") String rfidTag);
+
     // ========================
     // PALLET TRANSACTION OPERATIONS
     // ========================
@@ -251,7 +258,7 @@ public interface RfidApiService {
      * Create pallet transaction with pallet code
      * POST /PalletTransaction
      */
-    @POST("PalletTransaction")
+    @POST("PalletTransaction/CreateForGetOut")
     Call<com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionResponse> createPalletTransactionWithCode(
         @Body com.mixtra.zebrarfidscannerapp.api.model.PalletCodeRequest request
     );
@@ -296,7 +303,8 @@ public interface RfidApiService {
     @GET("PalletTransaction/GetByCode")
     Call<com.mixtra.zebrarfidscannerapp.api.model.PalletTransactionListByCodeResponse> getPalletTransactionListByCode(
             @Query("limit") int limit,
-            @Query("page") int page
+            @Query("page") int page,
+            @Query("filter") String filter
     );
     
     /**

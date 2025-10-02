@@ -70,13 +70,7 @@ public class PalletAdapter extends RecyclerView.Adapter<PalletAdapter.PalletView
         private TextView tvPalletName;
         private TextView tvCapacity;
         private TextView tvBalance;
-        private TextView tvTare;
-        private TextView tvInitial;
-        private TextView tvIncoming;
-        private TextView tvOutgoing;
-        private TextView tvRfidTag;
-        private TextView tvDateIn;
-        private TextView tvUserIn;
+        // Removed field declarations for views that don't exist in new layout
 
         public PalletViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -85,13 +79,14 @@ public class PalletAdapter extends RecyclerView.Adapter<PalletAdapter.PalletView
             tvPalletName = itemView.findViewById(R.id.tv_pallet_name);
             tvCapacity = itemView.findViewById(R.id.tv_capacity);
             tvBalance = itemView.findViewById(R.id.tv_balance);
-            tvTare = itemView.findViewById(R.id.tv_tare);
-            tvInitial = itemView.findViewById(R.id.tv_initial);
-            tvIncoming = itemView.findViewById(R.id.tv_incoming);
-            tvOutgoing = itemView.findViewById(R.id.tv_outgoing);
-            tvRfidTag = itemView.findViewById(R.id.tv_rfid_tag);
-            tvDateIn = itemView.findViewById(R.id.tv_date_in);
-            tvUserIn = itemView.findViewById(R.id.tv_user_in);
+            // Removed references to views that don't exist in new layout
+            // tvTare = itemView.findViewById(R.id.tv_tare);
+            // tvInitial = itemView.findViewById(R.id.tv_initial);
+            // tvIncoming = itemView.findViewById(R.id.tv_incoming);
+            // tvOutgoing = itemView.findViewById(R.id.tv_outgoing);
+            // tvRfidTag = itemView.findViewById(R.id.tv_rfid_tag);
+            // tvDateIn = itemView.findViewById(R.id.tv_date_in);
+            // tvUserIn = itemView.findViewById(R.id.tv_user_in);
         }
 
         public void bind(PalletListResponse.PalletData pallet) {
@@ -103,41 +98,12 @@ public class PalletAdapter extends RecyclerView.Adapter<PalletAdapter.PalletView
             // Set capacity information
             tvCapacity.setText(String.valueOf(pallet.getCapacity() != null ? pallet.getCapacity() : 0));
             tvBalance.setText(String.valueOf(pallet.getBalance() != null ? pallet.getBalance() : 0));
-            tvTare.setText(String.valueOf(pallet.getTare() != null ? pallet.getTare() : 0));
 
-            // Set movement information
-            tvInitial.setText(String.valueOf(pallet.getInitial() != null ? pallet.getInitial() : 0));
-            tvIncoming.setText(String.valueOf(pallet.getIncoming() != null ? pallet.getIncoming() : 0));
-            tvOutgoing.setText(String.valueOf(pallet.getOutgoing() != null ? pallet.getOutgoing() : 0));
+            // Movement information removed for simplified data table view
 
-            // Set RFID tag
-            String rfidTag = pallet.getRfidTag();
-            if (rfidTag != null && !rfidTag.trim().isEmpty()) {
-                tvRfidTag.setText(rfidTag);
-            } else {
-                tvRfidTag.setText("No RFID Tag");
-                tvRfidTag.setTextColor(itemView.getContext().getResources().getColor(android.R.color.darker_gray));
-            }
+            // RFID tag removed for simplified data table view
 
-            // Format and set date
-            String dateIn = pallet.getDateIn();
-            if (dateIn != null && !dateIn.trim().isEmpty()) {
-                try {
-                    // Parse ISO 8601 date format
-                    SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault());
-                    SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-                    Date date = inputFormat.parse(dateIn);
-                    tvDateIn.setText(outputFormat.format(date));
-                } catch (Exception e) {
-                    // If parsing fails, just show the raw date
-                    tvDateIn.setText(dateIn.substring(0, Math.min(10, dateIn.length())));
-                }
-            } else {
-                tvDateIn.setText("N/A");
-            }
-
-            // Set user info
-            tvUserIn.setText(pallet.getUserIn() != null ? pallet.getUserIn() : "N/A");
+            // Date and user info removed for simplified data table view
 
             // Set type background color based on type
             if (pallet.getType() != null) {
